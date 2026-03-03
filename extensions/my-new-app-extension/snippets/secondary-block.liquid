@@ -1,0 +1,20 @@
+{{ 'app.css' | asset_url | stylesheet_tag }}
+{{ 'app.js' | asset_url | script_tag }}
+
+<div class="secondary-block-container" style="text-align: center; padding: 20px; border: 1px dashed #ccc; margin: 10px;">
+  <h2 style="font-size: 1.5rem; color: #333;">{{ block.settings.heading }}</h2>
+
+  {% if block.settings.image != blank %}
+    <div style="margin: 15px 0;">
+      <img src="{{ block.settings.image | img_url: 'medium' }}" alt="{{ block.settings.heading }}" style="max-width: 100%; border-radius: 8px;">
+    </div>
+  {% endif %}
+
+  {% if block.settings.show_content %}
+    <p style="color: #666;">This content is visible because the checkbox is active!</p>
+  {% endif %}
+
+  <div style="margin-top: 10px; font-weight: bold;">
+    Selected Scheme: <span style="text-transform: capitalize;">{{ block.settings.color_scheme }}</span>
+  </div>
+</div>

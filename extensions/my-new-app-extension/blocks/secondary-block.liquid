@@ -1,0 +1,37 @@
+{% render 'secondary-block' %}
+
+{% schema %}
+{
+  "name": "Secondary Block",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading Text",
+      "default": "Secondary Block Heading"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Select Image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_content",
+      "label": "Show Content",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "options": [
+        { "value": "light", "label": "Light" },
+        { "value": "dark", "label": "Dark" }
+      ],
+      "default": "light"
+    }
+  ]
+}
+{% endschema %}

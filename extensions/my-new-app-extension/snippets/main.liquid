@@ -1,0 +1,6 @@
+{{ 'app.css' | asset_url | stylesheet_tag }}
+{{ 'app.js' | asset_url | script_tag }}
+
+<div class="myapp-block">
+    {{ block.settings.text }}
+</div>
