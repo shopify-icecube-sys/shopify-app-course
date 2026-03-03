@@ -2,7 +2,7 @@
 
 client_id = "6fbe029832d2da92791c72ee4b732ab7"
 name = "my-new-app"
-application_url = "https://example.com"
+application_url = "https://applications-shopify-8ao1.onrender.com"
 embedded = true
 
 [build]
@@ -28,4 +28,4 @@ api_version = "2026-04"
 scopes = "write_products,read_orders"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://applications-shopify-8ao1.onrender.com/auth/callback" ]
