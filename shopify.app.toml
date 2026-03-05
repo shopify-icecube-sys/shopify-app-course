@@ -12,10 +12,6 @@ automatically_update_urls_on_dev = true
 api_version = "2026-04"
 
   [[webhooks.subscriptions]]
-  topics = [ "app/uninstalled" ]
-  uri = "/webhooks/app/uninstalled"
-
-  [[webhooks.subscriptions]]
   topics = [ "app/scopes_update" ]
   uri = "/webhooks/app/scopes_update"
 
@@ -23,9 +19,15 @@ api_version = "2026-04"
   topics = [ "products/update" ]
   uri = "/webhooks/products/update"
 
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products,read_orders"
+scopes = "read_orders,write_products"
 
 [auth]
-redirect_urls = [ "https://applications-shopify-8ao1.onrender.com/auth/callback" ]
+redirect_urls = [
+  "https://applications-shopify-8ao1.onrender.com/auth/callback"
+]

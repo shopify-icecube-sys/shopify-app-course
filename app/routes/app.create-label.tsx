@@ -11,12 +11,16 @@ import {
     ButtonGroup,
     Modal,
     TextField,
+    DropZone,
+    Thumbnail,
 } from "@shopify/polaris";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 
 export default function CreateLabel() {
     const navigate = useNavigate();
+
+    // State declarations
     const [position, setPosition] = useState(1);
     const [hoverEffect, setHoverEffect] = useState("yes");
     const [conditions, setConditions] = useState({
@@ -24,19 +28,62 @@ export default function CreateLabel() {
         collectionPages: false,
         searchResultsPages: false,
     });
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [labelType, setLabelType] = useState("text");
     const [labelText, setLabelText] = useState("NEW");
     const [tempLabelText, setTempLabelText] = useState("NEW");
 
+    // Manage multiple files
+    const [tempFiles, setTempFiles] = useState<File[]>([]);
+
+    // Handle drop zone files
+    const handleDropZoneDrop = useCallback(
+        (_dropFiles: File[], acceptedFiles: File[], _rejectedFiles: File[]) => {
+            if (acceptedFiles.length > 0) {
+                setTempFiles((prev) => [...prev, ...acceptedFiles]);
+            }
+        },
+        []
+    );
+
+    const validImageTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml'];
+
+    // List of uploaded files for display
+    const uploadedFilesList = (
+        <BlockStack gap="200">
+            {tempFiles.map((file, index) => (
+                <div
+                    key={index}
+                    style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                    <Thumbnail
+                        size="small"
+                        alt={file.name}
+                        source={
+                            validImageTypes.includes(file.type)
+                                ? window.URL.createObjectURL(file)
+                                : ""
+                        }
+                    />
+                    <Text variant="bodySm" as="span">
+                        {file.name}
+                    </Text>
+                </div>
+            ))}
+        </BlockStack>
+    );
+
     const handleModalClose = () => {
         setIsModalOpen(false);
-        setTempLabelText(labelText); // Reset on cancel
+        // Optionally reset temp files or keep them
+        // setTempFiles([]);
+        setTempLabelText(labelText); // Reset label text if needed
     };
 
     const handleModalSave = () => {
+        // Save the label text and files
         setLabelText(tempLabelText);
+        // Files are already in tempFiles
         setIsModalOpen(false);
     };
 
@@ -112,32 +159,69 @@ export default function CreateLabel() {
                 <Layout.Section variant="oneThird">
                     <Card padding="400">
                         <BlockStack gap="400">
-                            <div style={{ position: "relative", width: "100%", paddingTop: "100%", backgroundColor: "#e1e3e5", borderRadius: "8px", overflow: "hidden" }}>
+                            <div
+                                style={{
+                                    position: "relative",
+                                    width: "100%",
+                                    paddingTop: "100%",
+                                    backgroundColor: "#e1e3e5",
+                                    borderRadius: "8px",
+                                    overflow: "hidden",
+                                }}
+                            >
                                 <img
                                     src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-lifestyle-1_800x800.jpg"
                                     alt="Product preview"
-                                    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                                    style={{
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                    }}
                                 />
                                 {/* The Label */}
-                                <div style={{
-                                    position: "absolute",
-                                    top: position <= 3 ? "12px" : position <= 6 ? "50%" : "auto",
-                                    bottom: position > 6 ? "12px" : "auto",
-                                    left: position % 3 === 1 ? "12px" : position % 3 === 2 ? "50%" : "auto",
-                                    right: position % 3 === 0 ? "12px" : "auto",
-                                    transform: (position % 3 === 2 ? "translateX(-50%) " : "") + (position >= 4 && position <= 6 ? "translateY(-50%)" : ""),
-                                    backgroundColor: "black",
-                                    color: "white",
-                                    padding: "4px 8px",
-                                    fontSize: "12px",
-                                    fontWeight: "bold",
-                                    borderRadius: "4px",
-                                    zIndex: 10
-                                }}>
-                                    {labelText}
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        top: position <= 3 ? "12px" : position <= 6 ? "50%" : "auto",
+                                        bottom: position > 6 ? "12px" : "auto",
+                                        left:
+                                            position % 3 === 1
+                                                ? "12px"
+                                                : position % 3 === 2
+                                                    ? "50%"
+                                                    : "auto",
+                                        right: position % 3 === 0 ? "12px" : "auto",
+                                        transform:
+                                            (position % 3 === 2 ? "translateX(-50%) " : "") +
+                                            (position >= 4 && position <= 6 ? "translateY(-50%)" : ""),
+                                        backgroundColor: labelType === "text" ? "black" : "transparent",
+                                        color: "white",
+                                        padding: labelType === "text" ? "4px 8px" : "0",
+                                        fontSize: "12px",
+                                        fontWeight: "bold",
+                                        borderRadius: "4px",
+                                        zIndex: 10,
+                                        maxWidth: "100px",
+                                        maxHeight: "100px",
+                                    }}
+                                >
+                                    {labelType === "image" && tempFiles.length > 0 && validImageTypes.includes(tempFiles[0].type) ? (
+                                        <img
+                                            src={window.URL.createObjectURL(tempFiles[0])}
+                                            alt="Label Custom Image"
+                                            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                                        />
+                                    ) : labelType === "text" ? (
+                                        <span>{labelText}</span>
+                                    ) : null}
                                 </div>
                             </div>
-                            <Button variant="primary" fullWidth>Change Product</Button>
+                            <Button variant="primary" fullWidth>
+                                Change Product
+                            </Button>
                         </BlockStack>
                     </Card>
                 </Layout.Section>
@@ -146,7 +230,9 @@ export default function CreateLabel() {
                 <Layout.Section>
                     <Card padding="400">
                         <BlockStack gap="600">
-                            <Button fullWidth variant="primary" onClick={() => setIsModalOpen(true)}>Change Label</Button>
+                            <Button fullWidth variant="primary" onClick={() => setIsModalOpen(true)}>
+                                Change Label
+                            </Button>
 
                             <BlockStack gap="200">
                                 <Text as="p" variant="bodyMd" fontWeight="medium">
@@ -161,10 +247,22 @@ export default function CreateLabel() {
                                 </Text>
 
                                 <InlineStack align="start" blockAlign="center" gap="400">
-                                    <Text as="p" variant="bodyMd" tone="subdued">Hover effect</Text>
+                                    <Text as="p" variant="bodyMd" tone="subdued">
+                                        Hover effect
+                                    </Text>
                                     <ButtonGroup variant="segmented">
-                                        <Button pressed={hoverEffect === "yes"} onClick={() => setHoverEffect("yes")}>Yes</Button>
-                                        <Button pressed={hoverEffect === "no"} onClick={() => setHoverEffect("no")}>No</Button>
+                                        <Button
+                                            pressed={hoverEffect === "yes"}
+                                            onClick={() => setHoverEffect("yes")}
+                                        >
+                                            Yes
+                                        </Button>
+                                        <Button
+                                            pressed={hoverEffect === "no"}
+                                            onClick={() => setHoverEffect("no")}
+                                        >
+                                            No
+                                        </Button>
                                     </ButtonGroup>
                                 </InlineStack>
 
@@ -191,17 +289,18 @@ export default function CreateLabel() {
                 </Layout.Section>
             </Layout>
 
+            {/* Modal for Label customization and file upload */}
             <Modal
                 open={isModalOpen}
                 onClose={handleModalClose}
                 title="Change Label"
                 primaryAction={{
-                    content: 'Save',
+                    content: "Save",
                     onAction: handleModalSave,
                 }}
                 secondaryActions={[
                     {
-                        content: 'Cancel',
+                        content: "Cancel",
                         onAction: handleModalClose,
                     },
                 ]}
@@ -209,8 +308,18 @@ export default function CreateLabel() {
                 <Modal.Section>
                     <BlockStack gap="400">
                         <ButtonGroup variant="segmented">
-                            <Button pressed={labelType === "text"} onClick={() => setLabelType("text")}>Text Label</Button>
-                            <Button pressed={labelType === "image"} onClick={() => setLabelType("image")}>Upload Image/SVG</Button>
+                            <Button
+                                pressed={labelType === "text"}
+                                onClick={() => setLabelType("text")}
+                            >
+                                Text Label
+                            </Button>
+                            <Button
+                                pressed={labelType === "image"}
+                                onClick={() => setLabelType("image")}
+                            >
+                                Upload Image/SVG
+                            </Button>
                         </ButtonGroup>
 
                         {labelType === "text" && (
@@ -221,7 +330,36 @@ export default function CreateLabel() {
                                 autoComplete="off"
                             />
                         )}
-                        {/* Future image upload UI placeholder here */}
+
+                        {labelType === "image" && (
+                            <BlockStack gap="200">
+                                <Text as="p" variant="bodyMd">Upload Images or SVG Files</Text>
+
+                                {/* Upload Button */}
+                                <Button onClick={() => document.getElementById('fileInput')?.click()}>
+                                    Select Files
+                                </Button>
+
+                                {/* Hidden File Input */}
+                                <input
+                                    type="file"
+                                    id="fileInput"
+                                    style={{ display: 'none' }}
+                                    multiple
+                                    accept="image/*,.svg"
+                                    onChange={(e) => {
+                                        const files = e.target.files;
+                                        if (files) {
+                                            const acceptedFiles = Array.from(files);
+                                            setTempFiles(prev => [...prev, ...acceptedFiles]);
+                                        }
+                                    }}
+                                />
+
+                                {/* Show list of uploaded files */}
+                                {uploadedFilesList}
+                            </BlockStack>
+                        )}
                     </BlockStack>
                 </Modal.Section>
             </Modal>
