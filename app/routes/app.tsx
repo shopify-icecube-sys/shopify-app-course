@@ -16,7 +16,7 @@ export default function App() {
   const host = searchParams.get("host");
 
   return (
-    <ShopifyAppProvider embedded apiKey={apiKey} host={host || undefined}>
+    <ShopifyAppProvider embedded apiKey={apiKey}>
       <ui-nav-menu>
         <a href="/app" rel="home">
           Home
