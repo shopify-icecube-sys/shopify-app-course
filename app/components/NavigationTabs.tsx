@@ -42,9 +42,9 @@ export function NavigationTabs() {
     const handleTabChange = useCallback(
         (selectedTabIndex: number) => {
             const targetPath = TABS[selectedTabIndex].url;
-            // Use React Router's navigate for client-side SPA transition (no refresh).
-            // We append location.search to preserve Shopify session parameters (shop, host, etc.)
-            navigate(`${targetPath}${location.search}`);
+            // Robustly preserve all Shopify search parameters (shop, host, id_token, etc.)
+            const searchParams = new URLSearchParams(location.search);
+            navigate(`${targetPath}?${searchParams.toString()}`);
         },
         [navigate, location.search]
     );
