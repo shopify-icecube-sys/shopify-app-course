@@ -6,16 +6,23 @@ import {
     Text,
     Button,
     InlineStack,
-    Box,
     Checkbox,
     ButtonGroup,
     Modal,
     TextField,
-    DropZone,
     Thumbnail,
+    Select,
+    OptionList,
+    Popover,
+    ActionList,
+    Icon,
 } from "@shopify/polaris";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { SearchIcon } from '@shopify/polaris-icons';
+
+// If you're using App Bridge, you can import this
+// import { ResourcePicker } from '@shopify/app-bridge-react';
 
 export default function CreateLabel() {
     const navigate = useNavigate();
@@ -33,18 +40,78 @@ export default function CreateLabel() {
     const [labelText, setLabelText] = useState("NEW");
     const [tempLabelText, setTempLabelText] = useState("NEW");
 
+    // Product selection state
+    const [isProductPopoverOpen, setIsProductPopoverOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<{
+        id: string;
+        title: string;
+        image?: { url: string };
+    } | null>(null);
+    const [productImage, setProductImage] = useState<string>(
+        "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-lifestyle-1_800x800.jpg"
+    );
+
+    // Mock products for demonstration - in real app, fetch from Shopify API
+    const [products, setProducts] = useState([
+        {
+            id: "1",
+            title: "Sample Product 1",
+            image: { url: "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-1.png" }
+        },
+        {
+            id: "2",
+            title: "Sample Product 2",
+            image: { url: "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-2.png" }
+        },
+        {
+            id: "3",
+            title: "Sample Product 3",
+            image: { url: "https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-product-3.png" }
+        },
+    ]);
+
+    // Fetch real products from your API
+    useEffect(() => {
+        // You can fetch products from your backend here
+        const fetchProducts = async () => {
+            try {
+                // const response = await fetch('/api/products');
+                // const data = await response.json();
+                // setProducts(data);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        };
+
+        // fetchProducts();
+    }, []);
+
+    // Handle product selection
+    const handleProductSelect = useCallback((product: any) => {
+        setSelectedProduct({
+            id: product.id,
+            title: product.title,
+            image: product.image
+        });
+
+        if (product.image?.url) {
+            setProductImage(product.image.url);
+        }
+
+        setIsProductPopoverOpen(false);
+    }, []);
+
     // Manage multiple files
     const [tempFiles, setTempFiles] = useState<File[]>([]);
 
-    // Handle drop zone files
-    const handleDropZoneDrop = useCallback(
-        (_dropFiles: File[], acceptedFiles: File[], _rejectedFiles: File[]) => {
-            if (acceptedFiles.length > 0) {
-                setTempFiles((prev) => [...prev, ...acceptedFiles]);
-            }
-        },
-        []
-    );
+    // Handle file uploads
+    const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            const acceptedFiles = Array.from(files);
+            setTempFiles((prev) => [...prev, ...acceptedFiles]);
+        }
+    }, []);
 
     const validImageTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml'];
 
@@ -75,15 +142,11 @@ export default function CreateLabel() {
 
     const handleModalClose = () => {
         setIsModalOpen(false);
-        // Optionally reset temp files or keep them
-        // setTempFiles([]);
-        setTempLabelText(labelText); // Reset label text if needed
+        setTempLabelText(labelText);
     };
 
     const handleModalSave = () => {
-        // Save the label text and files
         setLabelText(tempLabelText);
-        // Files are already in tempFiles
         setIsModalOpen(false);
     };
 
@@ -107,9 +170,9 @@ export default function CreateLabel() {
                     style={{
                         width: "48px",
                         height: "48px",
-                        backgroundColor: isSelected ? "white" : "white",
+                        backgroundColor: "white",
                         borderRadius: "8px",
-                        border: isSelected ? "2px solid black" : "1px solid transparent",
+                        border: isSelected ? "2px solid black" : "1px solid #e1e3e5",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -146,6 +209,16 @@ export default function CreateLabel() {
         );
     };
 
+    const productActivator = (
+        <Button
+            onClick={() => setIsProductPopoverOpen(true)}
+            disclosure
+            fullWidth
+        >
+            {selectedProduct ? selectedProduct.title : "Select a product"}
+        </Button>
+    );
+
     return (
         <Page
             title="Create Label"
@@ -170,8 +243,8 @@ export default function CreateLabel() {
                                 }}
                             >
                                 <img
-                                    src="https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-lifestyle-1_800x800.jpg"
-                                    alt="Product preview"
+                                    src={productImage}
+                                    alt={selectedProduct?.title || "Product preview"}
                                     style={{
                                         position: "absolute",
                                         top: 0,
@@ -181,6 +254,29 @@ export default function CreateLabel() {
                                         objectFit: "cover",
                                     }}
                                 />
+
+                                {/* Product title overlay */}
+                                {selectedProduct && (
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            bottom: "8px",
+                                            left: "8px",
+                                            backgroundColor: "rgba(0,0,0,0.6)",
+                                            color: "white",
+                                            padding: "4px 8px",
+                                            borderRadius: "4px",
+                                            fontSize: "12px",
+                                            maxWidth: "calc(100% - 16px)",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                        }}
+                                    >
+                                        {selectedProduct.title}
+                                    </div>
+                                )}
+
                                 {/* The Label */}
                                 <div
                                     style={{
@@ -219,9 +315,46 @@ export default function CreateLabel() {
                                     ) : null}
                                 </div>
                             </div>
-                            <Button variant="primary" fullWidth>
-                                Change Product
-                            </Button>
+
+                            {/* Product Selection */}
+                            <BlockStack gap="200">
+                                <Popover
+                                    active={isProductPopoverOpen}
+                                    activator={productActivator}
+                                    onClose={() => setIsProductPopoverOpen(false)}
+                                    autofocusTarget="first-node"
+                                >
+                                    <OptionList
+                                        title="Products"
+                                        options={products.map(product => ({
+                                            value: product.id,
+                                            label: product.title,
+                                            media: product.image?.url ? (
+                                                <Thumbnail
+                                                    source={product.image.url}
+                                                    alt={product.title}
+                                                    size="small"
+                                                />
+                                            ) : undefined,
+                                        }))}
+                                        selected={selectedProduct ? [selectedProduct.id] : []}
+                                        onChange={(selected) => {
+                                            const product = products.find(p => p.id === selected[0]);
+                                            if (product) {
+                                                handleProductSelect(product);
+                                            }
+                                        }}
+                                    />
+                                </Popover>
+
+                                <Button
+                                    variant="primary"
+                                    fullWidth
+                                    onClick={() => window.open('/admin/products', '_blank')}
+                                >
+                                    Manage Products in Admin
+                                </Button>
+                            </BlockStack>
                         </BlockStack>
                     </Card>
                 </Layout.Section>
@@ -347,13 +480,7 @@ export default function CreateLabel() {
                                     style={{ display: 'none' }}
                                     multiple
                                     accept="image/*,.svg"
-                                    onChange={(e) => {
-                                        const files = e.target.files;
-                                        if (files) {
-                                            const acceptedFiles = Array.from(files);
-                                            setTempFiles(prev => [...prev, ...acceptedFiles]);
-                                        }
-                                    }}
+                                    onChange={handleFileUpload}
                                 />
 
                                 {/* Show list of uploaded files */}
