@@ -9,6 +9,8 @@ import {
     Box,
     Checkbox,
     ButtonGroup,
+    Modal,
+    TextField,
 } from "@shopify/polaris";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
@@ -22,6 +24,21 @@ export default function CreateLabel() {
         collectionPages: false,
         searchResultsPages: false,
     });
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [labelType, setLabelType] = useState("text");
+    const [labelText, setLabelText] = useState("NEW");
+    const [tempLabelText, setTempLabelText] = useState("NEW");
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setTempLabelText(labelText); // Reset on cancel
+    };
+
+    const handleModalSave = () => {
+        setLabelText(tempLabelText);
+        setIsModalOpen(false);
+    };
 
     const handleConditionChange = useCallback((value: boolean, name: string) => {
         setConditions((prev) => ({ ...prev, [name]: value }));
@@ -117,7 +134,7 @@ export default function CreateLabel() {
                                     borderRadius: "4px",
                                     zIndex: 10
                                 }}>
-                                    NEW
+                                    {labelText}
                                 </div>
                             </div>
                             <Button variant="primary" fullWidth>Change Product</Button>
@@ -129,7 +146,7 @@ export default function CreateLabel() {
                 <Layout.Section>
                     <Card padding="400">
                         <BlockStack gap="600">
-                            <Button fullWidth variant="primary">Change Label</Button>
+                            <Button fullWidth variant="primary" onClick={() => setIsModalOpen(true)}>Change Label</Button>
 
                             <BlockStack gap="200">
                                 <Text as="p" variant="bodyMd" fontWeight="medium">
@@ -173,6 +190,41 @@ export default function CreateLabel() {
                     </Card>
                 </Layout.Section>
             </Layout>
+
+            <Modal
+                open={isModalOpen}
+                onClose={handleModalClose}
+                title="Change Label"
+                primaryAction={{
+                    content: 'Save',
+                    onAction: handleModalSave,
+                }}
+                secondaryActions={[
+                    {
+                        content: 'Cancel',
+                        onAction: handleModalClose,
+                    },
+                ]}
+            >
+                <Modal.Section>
+                    <BlockStack gap="400">
+                        <ButtonGroup variant="segmented">
+                            <Button pressed={labelType === "text"} onClick={() => setLabelType("text")}>Text Label</Button>
+                            <Button pressed={labelType === "image"} onClick={() => setLabelType("image")}>Upload Image/SVG</Button>
+                        </ButtonGroup>
+
+                        {labelType === "text" && (
+                            <TextField
+                                label="Label Text"
+                                value={tempLabelText}
+                                onChange={setTempLabelText}
+                                autoComplete="off"
+                            />
+                        )}
+                        {/* Future image upload UI placeholder here */}
+                    </BlockStack>
+                </Modal.Section>
+            </Modal>
         </Page>
     );
 }
