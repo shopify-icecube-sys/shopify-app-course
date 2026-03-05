@@ -11,6 +11,7 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import { Card, Layout, Page, Text, BlockStack, InlineGrid, Box, Divider, TextField, Button, InlineStack } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
+import prisma from "../db.server";
 
 // --- Components ---
 import { StatCard } from "../components/StatCard";
@@ -21,7 +22,16 @@ import { NavigationTabs } from "../components/NavigationTabs";
 
 // --- 1. LOADER: Fetches existing products from Shopify when the page loads ---
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+
+  // Upsert the merchant in the database:
+  // - If the shop already exists → update its accessToken
+  // - If the shop is new → create a row with shop + accessToken
+  await prisma.merchant.upsert({
+    where: { shop: session.shop },
+    update: { accessToken: session.accessToken ?? "" },
+    create: { shop: session.shop, accessToken: session.accessToken ?? "" },
+  });
 
   const response = await admin.graphql(
     `#graphql
