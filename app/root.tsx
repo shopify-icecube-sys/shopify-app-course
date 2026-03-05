@@ -1,4 +1,4 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, Link } from "react-router";
+import { Link, Links, Meta, Outlet, ScrollRestoration, Scripts } from "react-router";
 import { AppProvider as PolarisAppProvider } from "@shopify/polaris";
 import enTranslations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
@@ -37,7 +37,6 @@ export default function App() {
         />
         <Meta />
         <Links />
-        <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
       </head>
       <body>
         <PolarisAppProvider i18n={enTranslations} linkComponent={RemixLink}>
