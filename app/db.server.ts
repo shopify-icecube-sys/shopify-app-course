@@ -1,25 +1,17 @@
-import pkg from "../generated/prisma/index.js";
-import type { PrismaClient as PrismaClientType } from "../generated/prisma/index.js";
-const { PrismaClient } = pkg;
+import { PrismaClient } from "@prisma/client";
 
 declare global {
   // eslint-disable-next-line no-var
-  var prisma: PrismaClientType | undefined;
+  var prisma: PrismaClient | undefined;
 }
 
-let prisma: PrismaClientType;
+let prisma: PrismaClient;
 
 if (process.env.NODE_ENV === "production") {
-  // In production, we create a new instance
-  prisma = new PrismaClient({
-    datasources: { db: { url: process.env.DATABASE_URL } },
-  });
+  prisma = new PrismaClient();
 } else {
-  // In development, we use a global singleton to prevent exhausting connections
   if (!global.prisma) {
-    global.prisma = new PrismaClient({
-      datasources: { db: { url: process.env.DATABASE_URL } },
-    });
+    global.prisma = new PrismaClient();
   }
   prisma = global.prisma;
 }
