@@ -10,7 +10,7 @@ import {
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
-import { useLoaderData, useFetcher } from "react-router";
+import { useLoaderData, useFetcher, useNavigate } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -45,6 +45,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Home() {
     const { shop } = useLoaderData<typeof loader>();
     const fetcher = useFetcher();
+    const navigate = useNavigate();
 
     return (
         <Page title="Launch on-brand Shopify badges in three simple steps.">
@@ -107,7 +108,7 @@ export default function Home() {
                             {/* Top Banner section */}
                             <div style={{ backgroundColor: "#FCE72A", padding: "16px", borderTopLeftRadius: "8px", borderTopRightRadius: "8px", height: "140px", position: "relative" }}>
                                 <div style={{ position: "absolute", top: "40px", right: "20px" }}>
-                                    <Button variant="primary" tone="critical">Create Label</Button>
+                                    <Button variant="primary" tone="critical" onClick={() => navigate("/app/create-label")}>Create Label</Button>
                                 </div>
                             </div>
 
@@ -123,12 +124,9 @@ export default function Home() {
                                         </Text>
                                     </BlockStack>
                                     <InlineStack>
-                                        <fetcher.Form method="post">
-                                            <input type="hidden" name="actionType" value="create_label" />
-                                            <Button variant="primary" tone="critical" submit>
-                                                Create Label
-                                            </Button>
-                                        </fetcher.Form>
+                                        <Button variant="primary" tone="critical" onClick={() => navigate("/app/create-label")}>
+                                            Create Label
+                                        </Button>
                                     </InlineStack>
                                 </BlockStack>
                             </Box>
