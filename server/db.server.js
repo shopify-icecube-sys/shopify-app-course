@@ -1,11 +1,6 @@
 import { PrismaClient } from "../generated/prisma/index.js";
 
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
-
-let prisma: PrismaClient;
+let prisma;
 
 if (process.env.NODE_ENV === "production") {
   // In production, we create a new instance
